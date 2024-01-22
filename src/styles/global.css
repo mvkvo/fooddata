@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  font-family: '-apple-system, Roboto, sans-serif, serif';
+  min-height: '100vh';
+}
+
+main {
+  margin: 32px;
+}

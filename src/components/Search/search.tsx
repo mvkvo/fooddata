@@ -1,48 +1,65 @@
-import React, { FC, useState, useEffect, useRef } from 'react';
-import { Alert, Button, TextInput, Table } from 'flowbite-react';
+import React, { FC, useState, useEffect, useRef, useCallback } from 'react';
 import { SearchProps } from './models';
 import { DetailsResults, SearchResults } from '../../types/food-data';
-import {
-  FOODDATA_CENTRAL_API_KEY,
-  FOODDATA_CENTRAL_BASE_URL,
-} from '../../utils/constans';
+import { Table } from '../Table';
+import Loader from '../Loader/loader';
+
+import Button from '@mui/material/Button';
+
+//materialUI
+import { styled } from '@mui/material/styles';
+import { TextField, Box, Paper, Grid, Alert } from '@mui/material';
 
 const Search: FC<SearchProps> = () => {
   const [searchedData, setSearchedData] = useState<SearchResults>();
   const [detailsData, setDetailsData] = useState<DetailsResults>();
   const [showAlert, setShowAlert] = useState(false);
+  const [showLoader, setShowLeader] = useState(false);
+
   const textInputRef = useRef<HTMLInputElement>(null);
 
-  const base_url = FOODDATA_CENTRAL_BASE_URL;
-  const api_key = FOODDATA_CENTRAL_API_KEY;
+  const base_url = process.env.FOODDATA_CENTRAL_BASE_URL;
+  const api_key = process.env.FOODDATA_CENTRAL_API_KEY;
   const search_path = '/foods/search';
   const details_path = '/food/';
 
-  const getSearchedData = async (searchedItem: string) => {
-    try {
-      const fdc_search_url = `${base_url}${search_path}?api_key=${api_key}&query=${searchedItem}&pageSize=1`;
-      const response = await fetch(fdc_search_url);
-      const dataGrabbed = await response.json();
-      setSearchedData(dataGrabbed);
-    } catch (e) {
-      setShowAlert(true);
-    }
-  };
+  const getSearchedData = useCallback((searchedItem: string) => {
+    setShowAlert(false);
+    setShowLeader(true);
+    const fdc_search_url = `${base_url}${search_path}?api_key=${api_key}&query=${searchedItem}&pageSize=1`;
+
+    return fetch(fdc_search_url)
+      .then(async (res) => setSearchedData(await res.json()))
+      .catch((error) => {
+        setShowAlert(true);
+        console.error(`Cannot find "${searchedItem}" product - ${error}`);
+      });
+  }, []);
 
   const getDetailsData = async (fdcId: number) => {
     const fdc_details_url = `${base_url}${details_path}${fdcId}?api_key=${api_key}`;
-    const response = await fetch(fdc_details_url);
-    const dataGrabbed = await response.json();
-    setDetailsData(dataGrabbed);
+
+    return fetch(fdc_details_url)
+      .then(async (res) => {
+        setDetailsData(await res.json());
+      })
+      .catch((error) => {
+        setShowAlert(true);
+        console.error(`Cannot find "${fdcId}" product - ${error}`);
+      })
+      .finally(() => setShowLeader(false));
   };
 
   useEffect(() => {
+    if (!searchedData?.foods) return;
     const fdcId = searchedData?.foods[0].fdcId;
-
-    if (fdcId !== undefined) {
-      getDetailsData(fdcId);
-    }
+    if (fdcId) getDetailsData(fdcId);
   }, [searchedData]);
+
+  useEffect(() => {
+    if (!detailsData) return;
+    console.log(detailsData);
+  }, [detailsData]);
 
   const handleButtonClick = () => {
     const val = textInputRef.current?.value;
@@ -52,49 +69,83 @@ const Search: FC<SearchProps> = () => {
     }
   };
 
-  console.log(searchedData);
-  console.log(detailsData);
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }));
+
+  const FDCdata = {
+    content: {
+      tableHead: {
+        content: [
+          {
+            row: [{ cell: 'produkt' }, { cell: '100g' }],
+          },
+        ],
+      },
+      tableBody: {
+        content: [
+          {
+            row: [{ cell: 'test 1' }, { cell: '0.6g' }],
+          },
+          {
+            row: [{ cell: 'test 1' }, { cell: '0.6g' }],
+          },
+        ],
+      },
+    },
+  };
+
+  /*  
+         ['test 2', '6.4g'],
+  {
+      detailsData?.foodNutrients.map((item) => 
+          [item.nutrient.name, `${item.amount} ${item.nutrient.unitName}`]
+        )
+    }, */
 
   return (
-    <div>
-      {showAlert && (
-        <Alert color='failure'>
-          <span className='font-medium'>Error!</span>Nie znaleziono produktu.
-        </Alert>
-      )}
-      <div className='max-w-md flex gap-2'>
-        <TextInput
-          className='flex-1'
-          ref={textInputRef}
-          id='searchedProduct'
-          type='text'
-          placeholder='Nazwa produktu...'
-          required
-        />
-        <Button
-          className='flex-1/2'
-          onClick={handleButtonClick}>
-          Szukaj
-        </Button>
-      </div>
-      <h2 className='my-2'>{detailsData?.description} (100g)</h2>
-      {detailsData?.foodNutrients && (
-        <Table>
-          <Table.Body className='divide-y'>
-            {detailsData?.foodNutrients.map((item) => (
-              <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
-                <Table.Cell className='whitespace-nowrap font-medium text-gray-900 dark:text-white'>
-                  {item.nutrient.name}
-                </Table.Cell>
-                <Table.Cell className='whitespace-nowrap font-medium text-gray-900 dark:text-white'>
-                  {item.amount} {item.nutrient.unitName}
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      )}
-    </div>
+    <Box
+      sx={{ width: 'auto' }}
+      display='flex'>
+      <Grid
+        container
+        columns={1}
+        direction='row'
+        justifyContent='center'
+        alignItems='center'>
+        {showAlert && <Alert severity='error'>Nie znaleziono produktu.</Alert>}
+        <Grid
+          xs={12}
+          item>
+          <TextField
+            type='text'
+            id='searchedProduct'
+            label='Nazwa produktu'
+            variant='standard'
+            ref={textInputRef}
+          />
+        </Grid>
+        <Grid
+          xs={12}
+          item>
+          <Button
+            variant='text'
+            onClick={handleButtonClick}>
+            Szukaj
+          </Button>
+        </Grid>
+        <Grid
+          item
+          flexGrow={1}>
+          {/*           {showLoader && <Loader />} */}
+          <Table {...FDCdata} />
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
