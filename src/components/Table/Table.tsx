@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import { TableProps } from './models';
 
 //materialUI
 import {
@@ -10,21 +9,27 @@ import {
   tableCellClasses,
   TableContainer,
   TableHead,
-  TableRow,
+  TableRow as MUITableRow,
   Paper,
 } from '@mui/material';
+import { TableProps } from './models';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
+    backgroundColor: theme.palette.grey,
     color: theme.palette.common.white,
+    fontWeight: 700,
+    textTransform: 'uppercase',
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
   },
+  '&:nth-of-type(2)': {
+    textAlign: 'right',
+  },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
+const StyledTableRow = styled(MUITableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
   },
@@ -32,39 +37,81 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:last-child td, &:last-child th': {
     border: 0,
   },
+
+  '&:th': {
+    textAlign: 'right',
+  },
 }));
 
-export const Table: FC<TableProps> = ({ content }) => {
+export const Table: FC<TableProps> = ({ data }) => {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        border: 1,
+        borderRadius: '8px',
+        borderColor: 'grey.800',
+      }}>
       <MUITable>
         <TableHead>
-          {content.tableHead?.content.map((tableHeadItem, index) => (
-            <TableRow key={index}>
-              {tableHeadItem.row.map((tableHeadRowItem) => (
+          <MUITableRow>
+            <StyledTableCell
+              component='th'
+              scope='row'>
+              {data.description}
+            </StyledTableCell>
+            <StyledTableCell
+              component='th'
+              scope='row'>
+              {'100 g'}
+            </StyledTableCell>
+          </MUITableRow>
+          {/*           {head?.row.map((headRow, index) => (
+            <MUITableRow key={index}>
+              {headRow.cells.map((headRowCell) => (
                 <StyledTableCell
                   component='th'
                   scope='row'>
-                  {tableHeadRowItem.cell}
+                  {headRowCell}
                 </StyledTableCell>
               ))}
-            </TableRow>
-          ))}
+            </MUITableRow>
+          ))} */}
         </TableHead>
         <TableBody>
-          {content.tableBody?.content.map((tableBodyItem, index) => (
+          {data.foodNutrients.map(
+            (item, index) =>
+              item.nutrient && (
+                <StyledTableRow
+                  key={index}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'>
+                    {item.nutrient.name}
+                  </StyledTableCell>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'>
+                    {`${item.amount} ${item.nutrient.unitName}`}
+                  </StyledTableCell>
+                </StyledTableRow>
+              )
+          )}
+
+          {/* {body?.row.map((bodyRow, index) => (
             <StyledTableRow
               key={index}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              {tableBodyItem.row.map((tableBodyRowItem) => (
+              {bodyRow.cells.map((bodyRowCell) => (
                 <StyledTableCell
                   component='th'
                   scope='row'>
-                  {tableBodyRowItem.cell}
+                  {bodyRowCell}
                 </StyledTableCell>
               ))}
             </StyledTableRow>
-          ))}
+          ))} */}
         </TableBody>
       </MUITable>
     </TableContainer>

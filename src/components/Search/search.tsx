@@ -1,20 +1,20 @@
 import React, { FC, useState, useEffect, useRef, useCallback } from 'react';
-import { SearchProps } from './models';
-import { DetailsResults, SearchResults } from '../../types/food-data';
+
 import { Table } from '../Table';
 import Loader from '../Loader/loader';
 
-import Button from '@mui/material/Button';
+import { DetailsResults, SearchResults } from '../../types/food-data';
+import { SearchProps } from './models';
 
 //materialUI
-import { styled } from '@mui/material/styles';
-import { TextField, Box, Paper, Grid, Alert } from '@mui/material';
+import { TextField, Button, Box, Grid, Alert } from '@mui/material';
 
 const Search: FC<SearchProps> = () => {
   const [searchedData, setSearchedData] = useState<SearchResults>();
-  const [detailsData, setDetailsData] = useState<DetailsResults>();
+  const [detailsData, setDetailsData] = useState<DetailsResults | null>();
+
   const [showAlert, setShowAlert] = useState(false);
-  const [showLoader, setShowLeader] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const textInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,11 +25,19 @@ const Search: FC<SearchProps> = () => {
 
   const getSearchedData = useCallback((searchedItem: string) => {
     setShowAlert(false);
-    setShowLeader(true);
+    setShowLoader(true);
     const fdc_search_url = `${base_url}${search_path}?api_key=${api_key}&query=${searchedItem}&pageSize=1`;
 
     return fetch(fdc_search_url)
-      .then(async (res) => setSearchedData(await res.json()))
+      .then(async (res) => {
+        const data = await res.json();
+        if (!data.foods.length) {
+          setShowAlert(true);
+          setShowLoader(false);
+          return;
+        }
+        setSearchedData(data);
+      })
       .catch((error) => {
         setShowAlert(true);
         console.error(`Cannot find "${searchedItem}" product - ${error}`);
@@ -41,13 +49,15 @@ const Search: FC<SearchProps> = () => {
 
     return fetch(fdc_details_url)
       .then(async (res) => {
-        setDetailsData(await res.json());
+        const data = await res.json();
+        console.log('data', data);
+        setDetailsData(data);
       })
       .catch((error) => {
         setShowAlert(true);
         console.error(`Cannot find "${fdcId}" product - ${error}`);
       })
-      .finally(() => setShowLeader(false));
+      .finally(() => setShowLoader(false));
   };
 
   useEffect(() => {
@@ -65,26 +75,37 @@ const Search: FC<SearchProps> = () => {
     const val = textInputRef.current?.value;
 
     if (val !== undefined) {
+      setDetailsData(null);
       getSearchedData(val);
     }
   };
 
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleButtonClick();
+  };
 
-  const FDCdata = {
-    content: {
-      tableHead: {
+  /*   const tableMapper = {
+    head: {
+      row: [{ cells: [detailsData?.description as string, '100 g'] }],
+    },
+    body: {
+      ...detailsData?.foodNutrients.map((item) => ({
+        row: [
+          {
+            cells: [
+              item.nutrient.name,
+              `${item.amount} ${item.nutrient.unitName}`,
+        ],
+        ],
+      },
+      tableBody: {
         content: [
           {
-            row: [{ cell: 'produkt' }, { cell: '100g' }],
+            row: [{ cell: 'test 1' }, { cell: '0.6g' }],
           },
-        ],
+          {
+            row: [{ cell: 'test 1' }, { cell: '0.6g' }],
+            ],
       },
       tableBody: {
         content: [
@@ -95,54 +116,58 @@ const Search: FC<SearchProps> = () => {
             row: [{ cell: 'test 1' }, { cell: '0.6g' }],
           },
         ],
-      },
+      })),
     },
-  };
-
-  /*  
-         ['test 2', '6.4g'],
-  {
-      detailsData?.foodNutrients.map((item) => 
-          [item.nutrient.name, `${item.amount} ${item.nutrient.unitName}`]
-        )
-    }, */
+  }; */
 
   return (
     <Box
       sx={{ width: 'auto' }}
       display='flex'>
       <Grid
+        item
         container
-        columns={1}
+        xs={12}
+        display='flex'
         direction='row'
+        gap={4}
         justifyContent='center'
         alignItems='center'>
         {showAlert && <Alert severity='error'>Nie znaleziono produktu.</Alert>}
         <Grid
+          item
+          container
           xs={12}
-          item>
+          display='flex'
+          gap={1}
+          direction='column'
+          justifyContent='center'
+          alignItems='center'>
           <TextField
             type='text'
             id='searchedProduct'
             label='Nazwa produktu'
             variant='standard'
-            ref={textInputRef}
+            inputRef={textInputRef}
+            onKeyDown={handleKeyDown}
           />
-        </Grid>
-        <Grid
-          xs={12}
-          item>
           <Button
             variant='text'
             onClick={handleButtonClick}>
             Szukaj
           </Button>
         </Grid>
+
         <Grid
           item
-          flexGrow={1}>
-          {/*           {showLoader && <Loader />} */}
-          <Table {...FDCdata} />
+          container
+          xs={12}
+          md={8}
+          lg={4}
+          justifyContent='center'
+          alignItems='center'>
+          {showLoader && <Loader />}
+          {detailsData && <Table data={detailsData} />}
         </Grid>
       </Grid>
     </Box>
