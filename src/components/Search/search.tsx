@@ -18,8 +18,8 @@ const Search: FC<SearchProps> = () => {
 
   const textInputRef = useRef<HTMLInputElement>(null);
 
-  const base_url = process.env.FOODDATA_CENTRAL_BASE_URL;
-  const api_key = process.env.FOODDATA_CENTRAL_API_KEY;
+  const base_url = process.env.GATSBY_FOODDATA_CENTRAL_BASE_URL;
+  const api_key = process.env.GATSBY_FOODDATA_CENTRAL_API_KEY;
   const search_path = '/foods/search';
   const details_path = '/food/';
 
