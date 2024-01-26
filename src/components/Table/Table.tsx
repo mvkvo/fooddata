@@ -1,4 +1,6 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
+import translateText from '../../utils/translateText';
+import { FoodNutrient } from '../../types/food-data';
 
 //materialUI
 import {
@@ -44,6 +46,36 @@ const StyledTableRow = styled(MUITableRow)(({ theme }) => ({
 }));
 
 export const Table: FC<TableProps> = ({ data }) => {
+  const [translatedDesc, setTranslatedDesc] = useState<string>();
+  const [translatedNutrientsData, setTranslatedNutrientsData] = useState<
+    FoodNutrient[]
+  >([]);
+
+  useEffect(() => {
+    const translateDesc = async () =>
+      setTranslatedDesc(await translateText(data.description, 'pl'));
+
+    const translateNutrientsData = () => {
+      data.foodNutrients.map(async (item) => {
+        const translatedNutrientName = await translateText(
+          item.nutrient.name,
+          'pl'
+        );
+
+        setTranslatedNutrientsData((curr) => [
+          ...curr,
+          {
+            ...item,
+            nutrient: { ...item.nutrient, name: translatedNutrientName },
+          },
+        ]);
+      });
+    };
+
+    translateDesc();
+    translateNutrientsData();
+  }, []);
+
   return (
     <TableContainer
       component={Paper}
@@ -58,7 +90,7 @@ export const Table: FC<TableProps> = ({ data }) => {
             <StyledTableCell
               component='th'
               scope='row'>
-              {data.description}
+              {translatedDesc}
             </StyledTableCell>
             <StyledTableCell
               component='th'
@@ -67,51 +99,53 @@ export const Table: FC<TableProps> = ({ data }) => {
             </StyledTableCell>
           </MUITableRow>
           {/*           {head?.row.map((headRow, index) => (
-            <MUITableRow key={index}>
-              {headRow.cells.map((headRowCell) => (
-                <StyledTableCell
-                  component='th'
-                  scope='row'>
-                  {headRowCell}
-                </StyledTableCell>
-              ))}
-            </MUITableRow>
-          ))} */}
+              <MUITableRow key={index}>
+                {headRow.cells.map((headRowCell) => (
+                  <StyledTableCell
+                    component='th'
+                    scope='row'>
+                    {headRowCell}
+                  </StyledTableCell>
+                ))}
+              </MUITableRow>
+            ))} */}
         </TableHead>
         <TableBody>
-          {data.foodNutrients.map(
-            (item, index) =>
-              item.nutrient && (
-                <StyledTableRow
-                  key={index}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <StyledTableCell
-                    component='th'
-                    scope='row'>
-                    {item.nutrient.name}
-                  </StyledTableCell>
-                  <StyledTableCell
-                    component='th'
-                    scope='row'>
-                    {`${item.amount} ${item.nutrient.unitName}`}
-                  </StyledTableCell>
-                </StyledTableRow>
-              )
-          )}
+          {translatedNutrientsData &&
+            translatedNutrientsData.map(
+              (item, index) =>
+                (item.amount && (
+                  <StyledTableRow
+                    key={index}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <StyledTableCell
+                      component='th'
+                      scope='row'>
+                      {item.nutrient.name}
+                    </StyledTableCell>
+                    <StyledTableCell
+                      component='th'
+                      scope='row'>
+                      {`${item.amount} ${item.nutrient.unitName}`}
+                    </StyledTableCell>
+                  </StyledTableRow>
+                )) ||
+                null
+            )}
 
           {/* {body?.row.map((bodyRow, index) => (
-            <StyledTableRow
-              key={index}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              {bodyRow.cells.map((bodyRowCell) => (
-                <StyledTableCell
-                  component='th'
-                  scope='row'>
-                  {bodyRowCell}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
-          ))} */}
+              <StyledTableRow
+                key={index}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                {bodyRow.cells.map((bodyRowCell) => (
+                  <StyledTableCell
+                    component='th'
+                    scope='row'>
+                    {bodyRowCell}
+                  </StyledTableCell>
+                ))}
+              </StyledTableRow>
+            ))} */}
         </TableBody>
       </MUITable>
     </TableContainer>

@@ -6,7 +6,6 @@ import { LayoutProps } from './model';
 
 import '../styles/global.css';
 
-
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',

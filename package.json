@@ -21,6 +21,7 @@
     "@mui/material": "^5.15.5",
     "@mui/styled-engine-sc": "^6.0.0-alpha.12",
     "autoprefixer": "^10.4.17",
+    "axios": "^1.6.7",
     "gatsby": "^5.13.1",
     "gatsby-plugin-manifest": "^5.13.0",
     "gatsby-plugin-postcss": "^6.13.0",

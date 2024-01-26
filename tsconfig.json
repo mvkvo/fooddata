@@ -2,13 +2,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@components/*": ["./src/components/*"]
     },
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "target": "esnext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
 
-    "jsx": "preserve",
+    //"jsx": "preserve",
     "lib": ["dom", "es2017"],
 
     "jsx": "react" /* Specify what JSX code is generated. */,
@@ -25,5 +27,16 @@
     "noImplicitAny": false,
     "isolatedModules": false
   },
-  "include": ["**/*"]
+  "include": [
+    "./src/**/*",
+    "./gatsby-node.ts",
+    "./gatsby-config.ts",
+    "./gatsby-env.d.ts",
+    "./postcss.config.ts",
+    "./tailwind.config.ts",
+    "./gatsby-browser.tsx",
+    "src/components/.tsx",
+    "src/components/.tsx"
+  ],
+  "exclude": ["./node_modules", "./public", "./cache"]
 }

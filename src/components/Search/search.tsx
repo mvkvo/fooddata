@@ -5,7 +5,7 @@ import Loader from '../Loader/loader';
 
 import { DetailsResults, SearchResults } from '../../types/food-data';
 import { SearchProps } from './models';
-
+import translateText from '../../utils/translateText';
 //materialUI
 import { TextField, Button, Box, Grid, Alert } from '@mui/material';
 
@@ -71,12 +71,13 @@ const Search: FC<SearchProps> = () => {
     console.log(detailsData);
   }, [detailsData]);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     const val = textInputRef.current?.value;
 
     if (val !== undefined) {
+      const translatedVal = await translateText(val, 'en');
       setDetailsData(null);
-      getSearchedData(val);
+      getSearchedData(translatedVal);
     }
   };
 

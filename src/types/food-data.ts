@@ -5,8 +5,12 @@ export interface SearchParams {
   brandOwner?: string;
   requireAllWords?: boolean;
   pageNumber?: number;
-  sortField?: "lowercaseDescription.keyword" | "dataType.keyword" | "publishedDate" | "fdcId";
-  sortDirection?: "asc" | "desc";
+  sortField?:
+    | 'lowercaseDescription.keyword'
+    | 'dataType.keyword'
+    | 'publishedDate'
+    | 'fdcId';
+  sortDirection?: 'asc' | 'desc';
 }
 
 export interface SearchResults {
@@ -33,8 +37,8 @@ export interface SearchResults {
   }[];
 }
 
-interface FoodNutrient {
-  type: "FoodNutrient";
+export interface FoodNutrient {
+  type: 'FoodNutrient';
   id: number;
   nutrient: {
     id: number;
