@@ -23,6 +23,7 @@
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.7",
     "gatsby": "^5.13.1",
+    "gatsby-plugin-alias-imports": "^1.0.5",
     "gatsby-plugin-manifest": "^5.13.0",
     "gatsby-plugin-postcss": "^6.13.0",
     "gatsby-plugin-sitemap": "^6.13.0",

@@ -1,4 +1,5 @@
 import type { GatsbyConfig } from 'gatsby';
+const path = require('path');
 
 const config: GatsbyConfig = {
   siteMetadata: {
@@ -16,6 +17,30 @@ const config: GatsbyConfig = {
       resolve: 'gatsby-plugin-manifest',
       options: {
         icon: 'src/images/icon.png',
+      },
+    },
+    {
+      resolve: `gatsby-plugin-alias-imports`,
+      options: {
+        alias: {
+          '~': path.resolve(__dirname, 'src'),
+        },
+        extensions: [
+          '.mjs',
+          '.js',
+          '.jsx',
+          '.wasm',
+          '.json',
+          '.ts',
+          '.tsx',
+          '.js',
+          '.jsx',
+          '.css',
+          '.sass',
+          '.md',
+          '.ts',
+          '.tsx',
+        ],
       },
     },
   ],
