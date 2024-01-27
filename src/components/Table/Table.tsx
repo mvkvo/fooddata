@@ -1,6 +1,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import translateText from '~/utils/translateText';
-import { FoodNutrient, TranslatedFoodData } from '~/types/food-data';
+import { TranslatedFoodData } from '~/types/food-data';
 import { FoodDataContext } from '~/context/foodDataCentral';
 import { TableProps } from './models';
 
