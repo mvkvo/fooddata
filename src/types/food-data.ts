@@ -37,6 +37,11 @@ export interface SearchResults {
   }[];
 }
 
+export interface TranslatedFoodData {
+  desc: string;
+  nutrients: FoodNutrient[];
+}
+
 export interface FoodNutrient {
   type: 'FoodNutrient';
   id: number;

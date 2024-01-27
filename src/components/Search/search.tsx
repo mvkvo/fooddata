@@ -55,10 +55,12 @@ export const Search: FC<SearchProps> = () => {
             id="searchedProduct"
             label="Nazwa produktu"
             variant="standard"
+            value="kurczak"
             inputRef={textInputRef}
             onKeyDown={handleKeyDown}
+            autoFocus
           />
-          <Button variant="text" onClick={handleButtonClick}>
+          <Button variant="outlined" size="small" onClick={handleButtonClick}>
             Szukaj
           </Button>
         </Grid>

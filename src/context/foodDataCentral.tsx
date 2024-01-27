@@ -1,7 +1,12 @@
 import React, { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { DetailsResults, SearchResults } from '~/types/food-data';
+import {
+  DetailsResults,
+  SearchResults,
+  TranslatedFoodData,
+  FoodNutrient,
+} from '~/types/food-data';
 
 const defaultValues = {
   detailsData: {
@@ -28,6 +33,10 @@ const defaultValues = {
   getSearchedData: (searchedItem) => {},
   showAlert: false,
   showLoader: false,
+  productsArray: [] as TranslatedFoodData[],
+  setProductsArray: (product) => {},
+  totalNutrients: [] as FoodNutrient[],
+  setTotalNutrients: (nutrients) => {},
 };
 
 export const FoodDataContext = createContext(defaultValues);
@@ -47,16 +56,14 @@ export const FoodDataProvider = ({ children }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
+  const [productsArray, setProductsArray] = useState([]);
+  const [totalNutrients, setTotalNutrients] = useState([]);
+
   useEffect(() => {
     if (!searchedData?.foods) return;
     const fdcId = searchedData?.foods[0].fdcId;
     if (fdcId) getDetailsData(fdcId);
   }, [searchedData]);
-
-  useEffect(() => {
-    if (!detailsData) return;
-    console.log(detailsData);
-  }, [detailsData]);
 
   const getSearchedData = async (searchedItem) => {
     setShowAlert(false);
@@ -87,7 +94,6 @@ export const FoodDataProvider = ({ children }) => {
       .get(`${API_URL}${fdc_details_path}${fdcId}?api_key=${API_KEY}`)
       .then(async (res) => {
         const data = await res.data;
-        console.log('data', data);
         setDetailsData(data);
       })
       .catch((error) => {
@@ -102,6 +108,10 @@ export const FoodDataProvider = ({ children }) => {
     setDetailsData,
     getSearchedData,
     detailsData,
+    productsArray,
+    setProductsArray,
+    totalNutrients,
+    setTotalNutrients,
     showAlert,
     showLoader,
   };

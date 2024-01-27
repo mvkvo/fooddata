@@ -15,8 +15,10 @@ import {
   TableHead,
   TableRow as MUITableRow,
   Paper,
-  Button,
-  Grid,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  accordionSummaryClasses,
 } from '@mui/material';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -25,6 +27,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontWeight: 700,
     textTransform: 'uppercase',
+    border: 0,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -50,98 +53,101 @@ const StyledTableRow = styled(MUITableRow)(({ theme }) => ({
   },
 }));
 
-export const Table: FC<TableProps> = () => {
-  const {
-    detailsData,
-    showLoader,
-    productsArray,
-    setProductsArray,
-    totalNutrients,
-    setTotalNutrients,
-  } = useContext(FoodDataContext);
+const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
+  [`&.${accordionSummaryClasses}`]: {
+    margin: 0,
+  },
+}));
 
-  const [translatedNutrients, setTranslatedNutrients] =
-    useState<TranslatedFoodData>();
-
-  useEffect(() => {
-    if (!detailsData.foodNutrients.length) return;
-    const translateData = async () => {
-      const translate = async (text) => translateText(text, 'pl');
-
-      const translateFoodData = () => {
-        return Promise.all(
-          detailsData.foodNutrients.map(async (item) => ({
-            ...item,
-            nutrient: {
-              ...item.nutrient,
-              name: await translate(item.nutrient.name),
-            },
-          }))
-        );
-      };
-
-      setTranslatedNutrients({
-        desc: await translate(detailsData.description),
-        nutrients: await translateFoodData(),
-      });
-    };
-
-    translateData();
-  }, [detailsData]);
-
-  useEffect(() => {
-    if (showLoader) setTranslatedNutrients(undefined);
-  }, [showLoader]);
-
-  useEffect(() => {
-    console.log(productsArray);
-  }, [productsArray]);
-
-  const handleAddToListButtonClick = () => {
-    if (translatedNutrients) {
-      setProductsArray((curr) => [...curr, translatedNutrients]);
-      /* setTotalNutrients((curr) => curr.map((currNutr) => {
-        const test = translatedNutrients.nutrients.find(x => x.id === currNutr.id)
-      })) */
-      /*    const sumNutr = translatedNutrients.nutrients.map((x) =>
-        totalNutrients.find((y) => y.nutrient.id === x.nutrient.id)
-      );
-      setTotalNutrients(); */
-    }
-  };
+export const ProductsList: FC<TableProps> = () => {
+  const { productsArray } = useContext(FoodDataContext);
 
   return (
     <>
-      {(translatedNutrients?.nutrients.length && (
-        <Grid container justifyContent="right" gap={1}>
-          <Button
-            size="small"
-            variant="contained"
-            onClick={handleAddToListButtonClick}
-          >
-            Dodaj do listy +
-          </Button>
-          <TableContainer
+      {/*   <Accordion
+        sx={{
+          background: 'transparent',
+          marginBottom: '12px',
+        }}
+      >
+        <AccordionSummary
+          component={Paper}
+          sx={{
+            border: 1,
+            borderRadius: '8px',
+            borderColor: 'grey.800',
+            height: '50px',
+          }}
+        >
+          <MUITable>
+            <TableHead>
+              <MUITableRow>
+                <StyledTableCell component="th" scope="row">
+                  SUMA
+                </StyledTableCell>
+              </MUITableRow>
+            </TableHead>
+          </MUITable>
+        </AccordionSummary>
+        <AccordionDetails>
+          <MUITable>
+            <TableBody>
+              {item.nutrients.map(
+                (item, index) =>
+                  (item.amount && (
+                    <StyledTableRow
+                      key={index}
+                      sx={{
+                        '&:last-child td, &:last-child th': { border: 0 },
+                      }}
+                    >
+                      <StyledTableCell component="th" scope="row">
+                        {item.nutrient.name}
+                      </StyledTableCell>
+                      <StyledTableCell component="th" scope="row">
+                        {`${item.amount} ${item.nutrient.unitName}`}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  )) ||
+                  null
+              )}
+            </TableBody>
+          </MUITable>
+        </AccordionDetails>
+      </Accordion> */}
+      {productsArray.map((item) => (
+        <Accordion
+          sx={{
+            background: 'transparent',
+            marginBottom: '12px',
+          }}
+        >
+          <AccordionSummary
             component={Paper}
             sx={{
               border: 1,
               borderRadius: '8px',
               borderColor: 'grey.800',
+              height: '50px',
             }}
           >
             <MUITable>
               <TableHead>
                 <MUITableRow>
                   <StyledTableCell component="th" scope="row">
-                    {translatedNutrients.desc}
+                    {item.desc}
                   </StyledTableCell>
                   <StyledTableCell component="th" scope="row">
                     {'100 g'}
                   </StyledTableCell>
                 </MUITableRow>
               </TableHead>
+            </MUITable>
+          </AccordionSummary>
+          <AccordionDetails>
+            <MUITable>
               <TableBody>
-                {translatedNutrients.nutrients.map(
+                {item.nutrients.map(
                   (item, index) =>
                     (item.amount && (
                       <StyledTableRow
@@ -162,12 +168,11 @@ export const Table: FC<TableProps> = () => {
                 )}
               </TableBody>
             </MUITable>
-          </TableContainer>
-        </Grid>
-      )) ||
-        null}
+          </AccordionDetails>
+        </Accordion>
+      )) || null}
     </>
   );
 };
 
-export default Table;
+export default ProductsList;
